@@ -161,12 +161,6 @@
             margin-top: 2rem;
             opacity: 0.8;
         }
-
-        .debug-info {
-            font-size: 0.8rem;
-            color: #666;
-            margin-top: 0.5rem;
-        }
     </style>
 </head>
 <body>
@@ -180,14 +174,12 @@
             <div class="card-body">
                 <div class="form-group">
                     <label for="macInput">Dirección MAC:</label>
-                    <input type="text" id="macInput" placeholder='Ej: "00:1A:2B:3C:4D:5E"' value='(0c:b9:37:b1:bb:ab)' autofocus>
-                    <div class="debug-info">Formato aceptado: 00:1A:2B:3C:4D:5E o (0c:b9:37:b1:bb:ab)</div>
+                    <input type="text" id="macInput" placeholder='Ej: "00:1A:2B:3C:4D:5E"' autofocus>
                 </div>
 
                 <div class="form-group">
                     <label for="digitoInput">Último dígito:</label>
-                    <input type="text" id="digitoInput" maxlength="1" placeholder="Ej: C" style="text-transform: uppercase;" value="C">
-                    <div class="debug-info">Debe ser un carácter hexadecimal (0-9, A-F)</div>
+                    <input type="text" id="digitoInput" maxlength="1" placeholder="Ej: C" style="text-transform: uppercase;">
                 </div>
 
                 <button class="btn" onclick="procesarMAC()">🚀 Procesar MAC</button>
@@ -212,21 +204,16 @@
     </div>
 
     <script>
-        // Función de procesamiento CORREGIDA
         function procesarDireccionMAC(mac, nuevoUltimoDigito) {
-            console.log('🔧 MAC original:', mac);
-            
             // 1. Limpiar la entrada completamente
             let macLimpia = mac.replace(/["'()\s]/g, '');
-            console.log('✨ MAC limpia:', macLimpia);
             
             // 2. Quitar todos los separadores
             let soloDigitos = macLimpia.replace(/[:.-]/g, '');
-            console.log('🔢 Solo dígitos:', soloDigitos);
             
-            // 3. Verificar que tenga 12 caracteres (6 pares hexadecimales)
+            // 3. Verificar que tenga 12 caracteres
             if (soloDigitos.length !== 12) {
-                throw new Error(`La MAC debe tener 12 dígitos. Tiene: ${soloDigitos.length} (${soloDigitos})`);
+                throw new Error('La MAC debe tener exactamente 12 dígitos hexadecimales');
             }
             
             // 4. Verificar que sean hexadecimales válidos
@@ -236,19 +223,12 @@
             
             // 5. Convertir a mayúsculas
             soloDigitos = soloDigitos.toUpperCase();
-            console.log('🔠 Dígitos en mayúsculas:', soloDigitos);
             
             // 6. Tomar los últimos 10 dígitos (excluir los primeros 2)
-            const ultimos10Digitos = soloDigitos.substring(2); // Quita los primeros 2 caracteres
-            console.log('🎯 Últimos 10 dígitos:', ultimos10Digitos);
-            
-            if (ultimos10Digitos.length !== 10) {
-                throw new Error('Error al extraer los últimos 10 dígitos');
-            }
+            const ultimos10Digitos = soloDigitos.substring(2);
             
             // 7. Reemplazar el último dígito
             const resultado = ultimos10Digitos.substring(0, 9) + nuevoUltimoDigito.toUpperCase();
-            console.log('✅ Resultado final:', resultado);
             
             return resultado;
         }
@@ -257,15 +237,11 @@
             const macInput = document.getElementById('macInput').value.trim();
             const digitoInput = document.getElementById('digitoInput').value.trim().toUpperCase();
             
-            console.log('🔄 Iniciando procesamiento...');
-            console.log('📥 MAC input:', macInput);
-            console.log('📥 Dígito input:', digitoInput);
-            
             // Ocultar resultados anteriores
             document.getElementById('error').classList.remove('show');
             document.getElementById('resultSection').classList.remove('show');
 
-            // Validaciones básicas
+            // Validaciones
             if (!macInput) {
                 mostrarError('Por favor ingresa una dirección MAC');
                 return;
@@ -285,9 +261,7 @@
                 const resultado = procesarDireccionMAC(macInput, digitoInput);
                 document.getElementById('resultadoTexto').textContent = resultado;
                 document.getElementById('resultSection').classList.add('show');
-                console.log('🎉 Procesamiento exitoso!');
             } catch (error) {
-                console.error('❌ Error:', error.message);
                 mostrarError('Error: ' + error.message);
             }
         }
@@ -338,13 +312,9 @@
             e.target.value = e.target.value.toUpperCase();
         });
 
-        // Procesar automáticamente al cargar con el ejemplo
+        // Foco automático al cargar
         window.addEventListener('load', function() {
-            console.log('🚀 Aplicación cargada');
-            setTimeout(() => {
-                console.log('🔄 Procesando ejemplo automáticamente...');
-                procesarMAC();
-            }, 1000);
+            document.getElementById('macInput').focus();
         });
     </script>
 </body>
