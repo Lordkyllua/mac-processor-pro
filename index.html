@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAC Processor Pro - Herramienta para Direcciones MAC</title>
+    <meta name="description" content="Procesador profesional de direcciones MAC. Convierte y personaliza direcciones MAC automáticamente.">
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="MAC Processor Pro">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="./manifest.json">
+    
+    <!-- Icons -->
+    <link rel="icon" href="./icons/icon-192.png" type="image/png">
+    <link rel="apple-touch-icon" href="./icons/icon-192.png">
+    
+    <style>
+        :root {
+            --primary: #667eea;
+            --primary-dark: #5a6fd8;
+            --secondary: #764ba2;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --dark: #1F2937;
+            --light: #F9FAFB;
+            --surface: #FFFFFF;
+            --gray: #6B7280;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .card {
+            background: var(--surface);
+            border-radius: 20px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 2.5rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: rotate(45deg);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .card-header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+            position: relative;
+        }
+
+        .card-header p {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .developer-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 0.5rem 1.2rem;
+            border-radius: 25px;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            position: relative;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .pwa-badge {
+            background: rgba(255,255,255,0.3);
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.7rem;
+            margin-left: 0.5rem;
+        }
+
+        .card-body {
+            padding: 2.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 2rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .label-icon {
+            color: var(--primary);
+        }
+
+        input {
+            width: 100%;
+            padding: 1.2rem;
+            border: 2px solid #E5E7EB;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            background: var(--light);
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            background: white;
+            transform: translateY(-2px);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 1.2rem 2rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+        }
+
+        .install-btn {
+            background: linear-gradient(135deg, var(--warning) 0%, #D97706 100%);
+            margin-bottom: 1rem;
+        }
+
+        .result-section {
+            display: none;
+            background: linear-gradient(135deg, var(--light) 0%, #f0f4ff 100%);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-top: 1.5rem;
+            border-left: 5px solid var(--success);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-section.show {
+            display: block;
+            animation: slideInUp 0.5s ease;
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .result-text {
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: var(--dark);
+            text-align: center;
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: white;
+            border-radius: 10px;
+            border: 2px dashed #E5E7EB;
+            word-break: break-all;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            user-select: all;
+        }
+
+        .result-text:hover {
+            background: #f8fafc;
+            border-color: var(--primary);
+        }
+
+        .result-text:active {
+            background: #f1f5f9;
+        }
+
+        .copy-btn {
+            background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .copy-btn.copied {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+        }
+
+        .error {
+            background: linear-gradient(135deg, #FEF2F2 0%, #FEE2E2 100%);
+            color: #DC2626;
+            padding: 1.2rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            display: none;
+            border-left: 5px solid #DC2626;
+            animation: shake 0.5s ease;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 3rem;
+            opacity: 0.9;
+        }
+
+        .github-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .github-link:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 480px) {
+            .card-body {
+                padding: 2rem 1.5rem;
+            }
+            
+            .card-header {
+                padding: 2rem 1.5rem;
+            }
+            
+            .card-header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .result-text {
+                font-size: 1.3rem;
+            }
+        }
+
+        .success-animation {
+            animation: successPulse 0.6s ease;
+        }
+
+        @keyframes successPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Placeholder personalizado */
+        .mac-input::placeholder {
+            color: #9CA3AF;
+            font-style: italic;
+        }
+        
+        .digito-input::placeholder {
+            color: #9CA3AF;
+            font-style: italic;
+        }
+
+        .copy-fallback {
+            position: fixed;
+            top: -100px;
+            left: 0;
+            width: 100%;
+            padding: 10px;
+            background: var(--dark);
+            color: white;
+            text-align: center;
+            z-index: 10000;
+            transition: top 0.3s ease;
+        }
+
+        .copy-fallback.show {
+            top: 0;
+        }
+
+        /* Install Prompt */
+        .install-prompt {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--surface);
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            gap: 1rem;
+            max-width: 400px;
+            width: 90%;
+            animation: slideUp 0.5s ease;
+            border: 2px solid var(--primary);
+        }
+
+        .install-prompt.show {
+            display: flex;
+        }
+
+        .install-prompt button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .install-prompt button:hover {
+            background: var(--primary-dark);
+        }
+
+        @keyframes slideUp {
+            from { transform: translate(-50%, 100%); opacity: 0; }
+            to { transform: translate(-50%, 0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Fallback para copiado -->
+    <div class="copy-fallback" id="copyFallback"></div>
+
+    <!-- Install Prompt -->
+    <div class="install-prompt" id="installPrompt">
+        <span>📱 ¿Instalar MAC Processor Pro?</span>
+        <button onclick="installApp()">Instalar</button>
+        <button onclick="dismissPrompt()" style="background: var(--gray);">Ahora no</button>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h1>🔧 MAC Processor Pro</h1>
+                <p>Procesador profesional de direcciones MAC</p>
+                <div class="developer-badge">
+                    <span>🚀 Desarrollado por LordK</span>
+                    <span class="pwa-badge">PWA</span>
+                </div>
+            </div>
+            
+            <div class="card-body">
+                <!-- Botón de instalación -->
+                <button class="btn install-btn" id="installButton" onclick="showInstallPrompt()" style="display: none;">
+                    📥 Instalar App
+                </button>
+
+                <div class="form-group">
+                    <label for="macInput">
+                        <span class="label-icon">📡</span>
+                        Dirección MAC:
+                    </label>
+                    <input type="text" id="macInput" class="mac-input" placeholder="Ingresa la dirección MAC" autofocus>
+                </div>
+
+                <div class="form-group">
+                    <label for="digitoInput">
+                        <span class="label-icon">🔢</span>
+                        Último dígito:
+                    </label>
+                    <input type="text" id="digitoInput" class="digito-input" maxlength="1" placeholder="Ingresa el último dígito" style="text-transform: uppercase;">
+                </div>
+
+                <button class="btn" onclick="procesarMAC()">
+                    🚀 Procesar MAC
+                </button>
+
+                <div class="error" id="error">
+                    <span id="errorTexto"></span>
+                </div>
+
+                <div class="result-section" id="resultSection">
+                    <div class="result-header">
+                        <strong>✅ Resultado:</strong>
+                        <span style="color: var(--success);">✔️ Listo</span>
+                    </div>
+                    <div class="result-text" id="resultadoTexto" onclick="seleccionarTexto()"></div>
+                    <button class="copy-btn" id="copyButton" onclick="copiarResultado()">
+                        📋 Copiar resultado
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>MAC Processor Pro &copy; 2025 - PWA</p>
+            <a href="https://github.com/Lordkyllua/mac-processor-pro" class="github-link" target="_blank">
+                <span>⭐</span>
+                Desarrollado por LordK
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // ===== PWA FUNCTIONALITY =====
+        let deferredPrompt;
+        const installPrompt = document.getElementById('installPrompt');
+        const installButton = document.getElementById('installButton');
+
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(registration => {
+                        console.log('✅ Service Worker registrado con éxito:', registration);
+                    })
+                    .catch(error => {
+                        console.log('❌ Error registrando Service Worker:', error);
+                    });
+            });
+        }
+
+        // App Install Prompt
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Mostrar botón de instalación
+            installButton.style.display = 'block';
+            
+            // Mostrar prompt automático después de 10 segundos
+            setTimeout(() => {
+                if (deferredPrompt && !isAppInstalled()) {
+                    installPrompt.classList.add('show');
+                }
+            }, 10000);
+        });
+
+        function showInstallPrompt() {
+            if (deferredPrompt) {
+                installPrompt.classList.add('show');
+            }
+        }
+
+        function installApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then(choiceResult => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('✅ Usuario aceptó instalar la PWA');
+                        installPrompt.classList.remove('show');
+                        installButton.style.display = 'none';
+                    }
+                    deferredPrompt = null;
+                });
+            }
+        }
+
+        function dismissPrompt() {
+            installPrompt.classList.remove('show');
+        }
+
+        function isAppInstalled() {
+            return window.matchMedia('(display-mode: standalone)').matches || 
+                   window.navigator.standalone === true;
+        }
+
+        // Detectar si la app está instalada
+        if (isAppInstalled()) {
+            console.log('📱 App ejecutándose en modo standalone');
+            installButton.style.display = 'none';
+        }
+
+        // ===== APP FUNCTIONALITY =====
+        
+        // Función mejorada para copiar al portapapeles
+        async function copiarResultado() {
+            const resultado = document.getElementById('resultadoTexto').textContent;
+            const copyButton = document.getElementById('copyButton');
+            const fallback = document.getElementById('copyFallback');
+            
+            if (!resultado) {
+                mostrarError('No hay resultado para copiar');
+                return;
+            }
+
+            try {
+                // Método moderno con Clipboard API
+                if (navigator.clipboard && window.isSecureContext) {
+                    await navigator.clipboard.writeText(resultado);
+                    mostrarExitoCopia(copyButton, '✅ ¡Copiado!');
+                } 
+                // Método alternativo para navegadores más antiguos o HTTP
+                else {
+                    fallback.textContent = `Presiona Ctrl+C para copiar: ${resultado}`;
+                    fallback.classList.add('show');
+                    
+                    // Seleccionar el texto automáticamente
+                    seleccionarTexto();
+                    
+                    // Ocultar el mensaje después de 5 segundos
+                    setTimeout(() => {
+                        fallback.classList.remove('show');
+                    }, 5000);
+                    
+                    return; // Salir ya que el usuario debe copiar manualmente
+                }
+            } catch (err) {
+                console.error('Error al copiar:', err);
+                
+                // Método de respaldo con textarea
+                try {
+                    const textArea = document.createElement('textarea');
+                    textArea.value = resultado;
+                    textArea.style.position = 'fixed';
+                    textArea.style.left = '-999999px';
+                    textArea.style.top = '-999999px';
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    
+                    const successful = document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    
+                    if (successful) {
+                        mostrarExitoCopia(copyButton, '✅ ¡Copiado!');
+                    } else {
+                        throw new Error('Falló execCommand');
+                    }
+    
